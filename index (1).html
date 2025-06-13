@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Send My Location</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+      background-color: #f7faff;
+    }
+    h2 {
+      color: #2b2b2b;
+    }
+    #status {
+      margin-top: 20px;
+      color: #444;
+      font-size: 1.1em;
+    }
+  </style>
+</head>
+<body>
+  <h2>Please allow location access</h2>
+  <p>This will help send your location via WhatsApp to the rescuer.</p>
+  <div id="status">Trying to detect your location...</div>
+
+  <script>
+    function sendLocationToWhatsApp(lat, lon) {
+      const message = `🚨 I need help. Here is my location:\nhttps://maps.google.com/?q=${lat},${lon}`;
+      const whatsappURL = `https://wa.me/916297690712?text=${encodeURIComponent(message)}`;
+      window.location.href = whatsappURL;
+    }
+
+    function showError(error) {
+      const status = document.getElementById('status');
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          status.innerText = "❌ Location permission denied. Please refresh and allow.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          status.innerText = "⚠️ Location unavailable.";
+          break;
+        case error.TIMEOUT:
+          status.innerText = "⌛ Location request timed out.";
+          break;
+        default:
+          status.innerText = "⚠️ An unknown error occurred.";
+          break;
+      }
+    }
+
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          document.getElementById('status').innerText = "✅ Location found. Opening WhatsApp...";
+          sendLocationToWhatsApp(lat, lon);
+        }, showError);
+      } else {
+        document.getElementById('status').innerText = "❌ Geolocation not supported by this browser.";
+      }
+    }
+
+    getLocation();
+  </script>
+</body>
+</html>
